@@ -24,8 +24,9 @@ class VisionAgent:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 
+
     
-    def ask_vison_model(self, user_interaction, image_path):
+    def ask_vision_model(self, user_interaction, image_b64):
 
         response = self.client.chat.completions.create(
             messages=[
@@ -42,7 +43,7 @@ class VisionAgent:
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": f"data:image/jpeg;base64,{VisionAgent.read_image(image_path)}",
+                                "url": f"{image_b64}",
                             },
                         },
                     ],
@@ -57,9 +58,10 @@ class VisionAgent:
 
 if __name__ == "__main__":
     vision_agent = VisionAgent()
-    response = vision_agent.ask_vison_model(
+    image_b64 = VisionAgent.read_image(image_path="./images/image_1.jpeg")
+    response = vision_agent.ask_vision_model(
                                 user_interaction="Ce monsieur t'as balancé aux flics, est ce que tu le reconnais ?",\
-                                image_path="./images/image_1.jpeg"
+                                image_b64=image_b64
                                 )
 
     print(response)

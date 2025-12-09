@@ -47,7 +47,7 @@ class ConversationAgent:
 
 
 
-    def terminal_user_interface(self):
+    def terminal_user_interface(self, model):
         while True:
             user_interaction = input("Vous : ")
             if user_interaction.lower() == "exit":
@@ -55,7 +55,7 @@ class ConversationAgent:
             elif user_interaction == "":
                 print("Jarvis : Vous n'avez rien à dire ?")
             else:
-                response = self.ask_llm(user_interaction=user_interaction)
+                response = self.ask_llm(user_interaction=user_interaction, model=model) 
                 print(f"Jarvis : {response}")
 
 
@@ -64,4 +64,4 @@ class ConversationAgent:
 
 if __name__ == "__main__":
     conversation_agent = ConversationAgent()
-    conversation_agent.terminal_user_interface()
+    conversation_agent.terminal_user_interface(model="openai/gpt-oss-120b")
