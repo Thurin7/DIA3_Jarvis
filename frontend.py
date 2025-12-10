@@ -1,15 +1,11 @@
 import streamlit
-from conversation_agent import ConversationAgent 
-from vision_agent import VisionAgent
+from chat_agent import ChatAgent 
 from config import LLM_MODELS
 import base64
 
 
-if "conversation_agent" not in streamlit.session_state :
-	streamlit.session_state.conversation_agent = ConversationAgent()
-
-if "vision_agent" not in streamlit.session_state:
-	streamlit.session_state.vision_agent = VisionAgent()
+if "chat_agent" not in streamlit.session_state :
+	streamlit.session_state.chat_agent = ChatAgent()
 
 
 
@@ -20,24 +16,17 @@ def init_header():
 
 
 
-def show_discussion_history(history_placeholder):
+def show_discussion_history(history_placeholder): # je veux pouvoir afficher les images de l'historique
+
 	container = history_placeholder.container()
 	with container:
-		for message in streamlit.session_state.conversation_agent.history:
+		for message in streamlit.session_state.chat_agent.history:
 			if message["role"] != "system":
 				with streamlit.chat_message(message["role"]):
 					streamlit.write(message["content"])
 
 
 
-
-
-def streamlit_file_object_to_base64(file_object):
-    bytes_data = file_object.read()
-    b64_bytes = base64.b64encode(bytes_data)
-    b64_str = b64_bytes.decode("utf-8")
-    mime = "image/png" if file_object.type == "image/png" else "image/jpeg"
-    return f"data:{mime};base64,{b64_str}"
 
 
 def user_interface():
@@ -56,19 +45,20 @@ def user_interface():
 		_, col2 = streamlit.columns([2, 1])
 		with col2:
 			streamlit.empty()
-			selected_model = streamlit.selectbox("Choisis ton modèle gamin...", LLM_MODELS)
+			streamlit.session_state.chat_agent.large_language_model = streamlit.selectbox("Choisis ton modèle gamin...", LLM_MODELS)
 
 		if user_input:
 			if uploaded_file:
-				image_b64 = streamlit_file_object_to_base64(file_object=uploaded_file)
-				response = streamlit.session_state.vision_agent.ask_vision_model(
+				image_b64 = ChatAgent.format_streamlit_image_to_base64(streamlit_file_object=uploaded_file)
+				response = streamlit.session_state.chat_agent.ask_vision_model(
 					user_interaction=user_input,
 					image_b64 = image_b64
 					)
-				print(response)
+
 			else:
-				streamlit.session_state.conversation_agent.ask_llm(user_interaction=user_input, model=selected_model)
-				show_discussion_history(history_placeholder)
+				streamlit.session_state.chat_agent.ask_llm(user_interaction=user_input)
+			
+			show_discussion_history(history_placeholder)
 
 
 
